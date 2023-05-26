@@ -3,13 +3,16 @@ package com.amv0107.notifications
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context.NOTIFICATION_SERVICE
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build.VERSION_CODES.N
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat.getSystemService
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,6 +22,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var button_notify: Button
+    private lateinit var button_cancel: Button
+    private lateinit var button_update: Button
     private lateinit var mNotifyManager: NotificationManager
 
 
@@ -29,13 +34,35 @@ class MainActivity : AppCompatActivity() {
         createNotificationChannel()
 
         button_notify = findViewById(R.id.notify)
+        button_cancel = findViewById(R.id.cancel)
+        button_update = findViewById(R.id.update)
 
-        button_notify.setOnClickListener {
-            sendNotification()
-        }
+        button_cancel.setOnClickListener { cancelNotification() }
+
+        button_update.setOnClickListener { updateNotification() }
+
+        button_notify.setOnClickListener { sendNotification() }
+
+        setNotificationButtonState()
 
     }
 
+    private fun updateNotification() {
+        val androidImage = BitmapFactory.decodeResource(resources, R.drawable.mascot_1)
+        val nBuilder = getNotificationBuilder()
+        nBuilder.setStyle(
+            NotificationCompat.BigPictureStyle()
+                .bigPicture(androidImage)
+                .setBigContentTitle("Notification Updated!")
+        )
+        mNotifyManager.notify(NOTIFICATION_ID, nBuilder.build())
+        setNotificationButtonState(isNotifyEnabled = false, isCancelEnabled = true)
+    }
+
+    private fun cancelNotification() {
+        mNotifyManager.cancel(NOTIFICATION_ID)
+        setNotificationButtonState(isNotifyEnabled = true)
+    }
 
     private fun createNotificationChannel() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
@@ -60,11 +87,24 @@ class MainActivity : AppCompatActivity() {
             .setContentText("This is your notification text.")
             .setSmallIcon(R.drawable.ic_androiod)
             .setContentIntent(pendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
             .setAutoCancel(true)
     }
 
     private fun sendNotification() {
         val nBuilder = getNotificationBuilder()
         mNotifyManager.notify(NOTIFICATION_ID, nBuilder.build())
+        setNotificationButtonState(isNotifyEnabled = false, isUpdateEnabled = true, isCancelEnabled = true)
+    }
+
+    private fun setNotificationButtonState(
+        isNotifyEnabled: Boolean = true,
+        isUpdateEnabled: Boolean = false,
+        isCancelEnabled: Boolean = false
+    ) {
+        button_notify.isEnabled = isNotifyEnabled
+        button_update.isEnabled = isUpdateEnabled
+        button_cancel.isEnabled = isCancelEnabled
     }
 }
