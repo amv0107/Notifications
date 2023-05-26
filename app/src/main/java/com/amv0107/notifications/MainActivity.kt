@@ -36,8 +36,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        registerReceiver(mReceiver, IntentFilter(ACTION_UPDATE_NOTIFICATION))
         createNotificationChannel()
+        registerReceiver(mReceiver, IntentFilter(ACTION_UPDATE_NOTIFICATION))
 
         button_notify = findViewById(R.id.notify)
         button_cancel = findViewById(R.id.cancel)
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    private fun updateNotification() {
+    fun updateNotification() {
         val androidImage = BitmapFactory.decodeResource(resources, R.drawable.mascot_1)
         val nBuilder = getNotificationBuilder()
         nBuilder.setStyle(
@@ -114,6 +114,13 @@ class MainActivity : AppCompatActivity() {
         setNotificationButtonState(isNotifyEnabled = false, isUpdateEnabled = true, isCancelEnabled = true)
     }
 
+    /**
+     * Helper method to enable/disable the buttons.
+     *
+     * @param isNotifyEnabled, boolean: true if notify button enabled
+     * @param isUpdateEnabled, boolean: true if update button enabled
+     * @param isCancelEnabled, boolean: true if cancel button enabled
+     */
     private fun setNotificationButtonState(
         isNotifyEnabled: Boolean = true,
         isUpdateEnabled: Boolean = false,
@@ -124,9 +131,9 @@ class MainActivity : AppCompatActivity() {
         button_cancel.isEnabled = isCancelEnabled
     }
 
-    class NotificationReceiver() : BroadcastReceiver() {
+    inner class NotificationReceiver() : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-
+            updateNotification()
         }
     }
 }
